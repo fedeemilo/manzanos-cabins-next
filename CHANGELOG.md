@@ -7,6 +7,76 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.3.0] - 2026-01-15 ⚠️
+
+### ✨ Added - Modal de Confirmación y Mejoras
+
+#### Modal de Confirmación de Logout
+
+-   **Modal AlertDialog**: Confirmación antes de cerrar sesión para prevenir errores accidentales
+-   **Integración shadcn/ui**: Componente `alert-dialog` con animaciones suaves
+-   **Diseño claro**: 
+    -   Overlay oscuro semi-transparente
+    -   Card centrado con zoom-in animation
+    -   Botón rojo con texto blanco para acción destructiva
+    -   Botón outline para cancelar
+-   **Prevención de errores**: Requiere doble confirmación para cerrar sesión
+-   **UX mejorada**: Click fuera del modal o ESC para cancelar
+
+**Causa**: Usuario puede cerrar sesión sin querer con un solo click, generando fricción innecesaria.
+
+**Solución**: Modal de confirmación que requiere acción explícita para logout.
+
+**Antes:**
+```tsx
+<Button onClick={handleLogout}>
+  Cerrar Sesión
+</Button>
+```
+
+**Después:**
+```tsx
+<AlertDialog>
+  <AlertDialogTrigger asChild>
+    <Button>Cerrar Sesión</Button>
+  </AlertDialogTrigger>
+  <AlertDialogContent>
+    <AlertDialogHeader>
+      <AlertDialogTitle>¿Cerrar sesión?</AlertDialogTitle>
+      <AlertDialogDescription>
+        ¿Estás seguro que querés cerrar sesión?...
+      </AlertDialogDescription>
+    </AlertDialogHeader>
+    <AlertDialogFooter>
+      <AlertDialogCancel>Cancelar</AlertDialogCancel>
+      <AlertDialogAction onClick={handleLogout}>
+        Cerrar Sesión
+      </AlertDialogAction>
+    </AlertDialogFooter>
+  </AlertDialogContent>
+</AlertDialog>
+```
+
+#### Favicon ICO
+
+-   **Formato ICO**: Conversión de PNG a `.ico` para mejor compatibilidad cross-browser
+-   **Reemplazo de SVG**: El favicon SVG no se mostraba correctamente en algunos navegadores
+-   **Metadata actualizada**: `app/layout.tsx` apunta a `favicon.ico`
+
+**Causa**: El `favicon.svg` no se renderizaba en todos los browsers.
+
+**Solución**: Conversión del `icon-192.png` a `favicon.ico` (formato más universal).
+
+### 🗑️ Removed
+
+-   **favicon.svg**: Eliminado por incompatibilidad
+
+### 📦 Dependencies
+
+-   **Added**: `@radix-ui/react-alert-dialog@^1.1.4` - Para modal de confirmación
+
+---
+
 ## [1.2.0] - 2026-01-15 🔐
 
 ### ✨ Added - Sistema de Autenticación y Mejoras UX

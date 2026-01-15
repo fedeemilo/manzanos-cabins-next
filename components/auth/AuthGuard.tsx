@@ -116,7 +116,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
                             </AlertDialogCancel>
                             <AlertDialogAction
                                 onClick={handleLogout}
-                                className="bg-red-600 hover:bg-red-700 cursor-pointer"
+                                className="bg-red-600 hover:bg-red-700 text-white cursor-pointer"
                             >
                                 Cerrar Sesión
                             </AlertDialogAction>
