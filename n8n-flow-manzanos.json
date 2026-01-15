@@ -1,0 +1,178 @@
+{
+    "name": "Manzanos Cabins - Registro de Reservas",
+    "nodes": [
+        {
+            "parameters": {
+                "httpMethod": "POST",
+                "path": "reserva-creada",
+                "responseMode": "lastNode",
+                "options": {}
+            },
+            "id": "webhook-reserva",
+            "name": "Webhook - Reserva Creada",
+            "type": "n8n-nodes-base.webhook",
+            "typeVersion": 1,
+            "position": [250, 300],
+            "webhookId": "reserva-manzanos"
+        },
+        {
+            "parameters": {
+                "values": {
+                    "string": [
+                        {
+                            "name": "nombreCompleto",
+                            "value": "={{ $json.body.nombreCompleto }}"
+                        },
+                        {
+                            "name": "numeroCabana",
+                            "value": "={{ $json.body.numeroCabana }}"
+                        },
+                        {
+                            "name": "origenReserva",
+                            "value": "={{ $json.body.origenReserva }}"
+                        },
+                        {
+                            "name": "fechaInicio",
+                            "value": "={{ $json.body.fechaInicio }}"
+                        },
+                        {
+                            "name": "fechaFin",
+                            "value": "={{ $json.body.fechaFin }}"
+                        },
+                        {
+                            "name": "cantidadDias",
+                            "value": "={{ $json.body.cantidadDias }}"
+                        }
+                    ],
+                    "number": [
+                        {
+                            "name": "costoTotal",
+                            "value": "={{ $json.body.costoTotal }}"
+                        },
+                        {
+                            "name": "costoTotalUSD",
+                            "value": "={{ $json.body.costoTotalUSD }}"
+                        },
+                        {
+                            "name": "cotizacionDolar",
+                            "value": "={{ $json.body.cotizacionDolar }}"
+                        },
+                        {
+                            "name": "sena",
+                            "value": "={{ $json.body.sena }}"
+                        },
+                        {
+                            "name": "saldoPendiente",
+                            "value": "={{ $json.body.saldoPendiente }}"
+                        }
+                    ]
+                },
+                "options": {}
+            },
+            "id": "set-datos",
+            "name": "Formatear Datos",
+            "type": "n8n-nodes-base.set",
+            "typeVersion": 1,
+            "position": [470, 300]
+        },
+        {
+            "parameters": {
+                "operation": "append",
+                "documentId": {
+                    "__rl": true,
+                    "value": "1RMM_6cjiF-L4B6dluCznBNmdbV3lsgQM2OES0k61DRQ",
+                    "mode": "id"
+                },
+                "sheetName": {
+                    "__rl": true,
+                    "value": "={{ $now.setZone('America/Buenos_Aires').toFormat('yyyy') }}",
+                    "mode": "name"
+                },
+                "columns": {
+                    "mappingMode": "defineBelow",
+                    "value": {
+                        "Fecha Registro": "={{ $now.format('dd/MM/yyyy HH:mm') }}",
+                        "Nombre Completo": "={{ $json.nombreCompleto }}",
+                        "Cabaña": "={{ $json.numeroCabana }}",
+                        "Origen": "={{ $json.origenReserva }}",
+                        "Fecha Inicio": "={{ $json.fechaInicio }}",
+                        "Fecha Fin": "={{ $json.fechaFin }}",
+                        "Días": "={{ $json.cantidadDias }}",
+                        "Costo Total (ARS)": "={{ $json.costoTotal }}",
+                        "Costo Total (USD)": "={{ $json.costoTotalUSD }}",
+                        "Cotización Dólar": "={{ $json.cotizacionDolar }}",
+                        "Seña": "={{ $json.sena }}",
+                        "Saldo Pendiente": "={{ $json.saldoPendiente }}"
+                    }
+                },
+                "options": {}
+            },
+            "id": "google-sheets",
+            "name": "Agregar a Google Sheets",
+            "type": "n8n-nodes-base.googleSheets",
+            "typeVersion": 4,
+            "position": [690, 300],
+            "credentials": {
+                "googleSheetsOAuth2Api": {
+                    "id": "TU_CREDENCIAL_GOOGLE",
+                    "name": "Google Sheets account"
+                }
+            }
+        },
+        {
+            "parameters": {
+                "respondWith": "json",
+                "responseBody": "={{ { \"success\": true, \"message\": \"Reserva registrada en Google Sheets\" } }}"
+            },
+            "id": "respond-webhook",
+            "name": "Responder Webhook",
+            "type": "n8n-nodes-base.respondToWebhook",
+            "typeVersion": 1,
+            "position": [910, 300]
+        }
+    ],
+    "connections": {
+        "Webhook - Reserva Creada": {
+            "main": [
+                [
+                    {
+                        "node": "Formatear Datos",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Formatear Datos": {
+            "main": [
+                [
+                    {
+                        "node": "Agregar a Google Sheets",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        },
+        "Agregar a Google Sheets": {
+            "main": [
+                [
+                    {
+                        "node": "Responder Webhook",
+                        "type": "main",
+                        "index": 0
+                    }
+                ]
+            ]
+        }
+    },
+    "pinData": {},
+    "settings": {
+        "executionOrder": "v1"
+    },
+    "staticData": null,
+    "tags": [],
+    "triggerCount": 0,
+    "updatedAt": "2026-01-15T00:00:00.000Z",
+    "versionId": "1"
+}

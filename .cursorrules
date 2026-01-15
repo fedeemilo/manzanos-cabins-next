@@ -1,0 +1,346 @@
+# Reglas del Proyecto - Cabañas Los Manzanos
+
+## 📦 Al finalizar cualquier feature o cambio:
+
+### Versionado (Semantic Versioning)
+
+-   SIEMPRE actualizar la versión en `package.json` según el tipo de cambio:
+    -   **Major (X.0.0)**: Cambios que rompen compatibilidad
+    -   **Minor (0.X.0)**: Nuevas features
+    -   **Patch (0.0.X)**: Bugfixes y mejoras menores
+
+### CHANGELOG
+
+-   Agregar entrada en `CHANGELOG.md` con:
+    -   Versión nueva
+    -   Fecha (formato: YYYY-MM-DD)
+    -   Descripción detallada de los cambios
+    -   Tipo de cambio:
+        -   ✨ **Nuevo Feature** / **Added**
+        -   🐛 **Corregido** / **Fixed**
+        -   🎨 **Mejorado** / **Changed**
+        -   🗑️ **Removido** / **Removed**
+    -   Explicar CAUSA del problema (si es fix)
+    -   Mostrar ejemplos de código antes/después cuando sea relevante
+
+---
+
+## 🛠️ Stack Tecnológico
+
+### Frontend
+
+-   **Framework**: Next.js 16 (App Router)
+-   **Lenguaje**: TypeScript
+-   **Estilos**: Tailwind CSS 4
+-   **Componentes**: shadcn/ui
+-   **Formularios**: React Hook Form + Zod
+-   **Fechas**: date-fns (con locale es)
+-   **Iconos**: lucide-react
+
+### Backend
+
+-   **API**: Next.js API Routes
+-   **Base de Datos**: MongoDB con Mongoose
+-   **Emails**: Nodemailer
+
+### Integraciones Futuras
+
+-   **n8n**: Automatización y actualización de Excel
+
+---
+
+## 📝 Convenciones de Código
+
+### TypeScript
+
+-   **NO usar punto y coma** al final de las líneas
+-   Usar **comillas simples** (`'`) en lugar de comillas dobles
+-   Preferir **arrow functions** para componentes funcionales
+-   Usar **tipos explícitos** cuando sea necesario para claridad
+-   Evitar `any`, usar `unknown` y hacer type guards
+
+### Formato
+
+```typescript
+// ✅ CORRECTO
+import { useState } from 'react'
+
+const Component = () => {
+    const [state, setState] = useState<string>('')
+    return <div>{state}</div>
+}
+
+// ❌ INCORRECTO
+import { useState } from 'react'
+
+const Component = () => {
+    const [state, setState] = useState<string>('')
+    return <div>{state}</div>
+}
+```
+
+### Nombres
+
+-   **Componentes**: PascalCase (`ReservaForm`, `EmailTemplate`)
+-   **Archivos de componentes**: PascalCase (`ReservaForm.tsx`)
+-   **Utilidades/hooks**: camelCase (`useReservas`, `formatDate`)
+-   **Archivos de utilidades**: camelCase (`mongodb.ts`, `email.ts`)
+-   **Constantes**: UPPER_SNAKE_CASE (`MAX_RESERVAS`, `DEFAULT_PORT`)
+-   **Variables**: camelCase en español (`nombreCompleto`, `fechaInicio`)
+
+### Estructura de Archivos
+
+```
+app/
+  ├── api/              # API Routes
+  ├── (rutas)/          # Páginas y layouts
+  └── globals.css       # Estilos globales
+
+components/
+  ├── forms/            # Formularios
+  ├── ui/               # Componentes de shadcn/ui
+  └── shared/           # Componentes compartidos
+
+lib/
+  ├── mongodb.ts        # Conexión DB
+  ├── email.ts          # Utilidades de email
+  ├── schemas.ts        # Schemas de validación
+  └── utils.ts          # Utilidades generales
+
+models/
+  └── Reserva.ts        # Modelos de Mongoose
+```
+
+---
+
+## 🗄️ Base de Datos
+
+### MongoDB
+
+-   **Base de Datos Local**: `mongodb://localhost:27017/manzanos-cabins`
+-   **Producción**: MongoDB Atlas (configurar en `.env.local`)
+
+### Modelos
+
+-   Usar **Mongoose** para todos los modelos
+-   Definir **interfaces TypeScript** para todos los documentos
+-   Usar **middlewares** de Mongoose para cálculos automáticos
+-   Validar datos tanto en **Zod** (frontend) como en **Mongoose** (backend)
+
+### Ejemplo de Modelo
+
+```typescript
+export interface IReserva extends Document {
+    nombreCompleto: string
+    // ... campos
+}
+
+const Schema = new Schema({
+    nombreCompleto: {
+        type: String,
+        required: [true, 'Mensaje de error']
+    }
+})
+
+// Middleware para cálculos
+Schema.pre('save', function (this: IReserva) {
+    this.saldoPendiente = this.costoTotal - this.sena
+})
+```
+
+---
+
+## 📧 Sistema de Emails
+
+### Configuración
+
+-   Variables requeridas en `.env.local`:
+    ```
+    EMAIL_HOST=smtp.gmail.com
+    EMAIL_PORT=587
+    EMAIL_USER=email@gmail.com
+    EMAIL_PASSWORD=password-de-app
+    EMAIL_FROM=email@gmail.com
+    EMAIL_TO=destino@gmail.com
+    ```
+
+### Emails HTML
+
+-   Usar **inline CSS** para compatibilidad
+-   Templates **responsive** (mobile-first)
+-   Colores consistentes con branding: `#8B6F47`, `#A0826D`
+-   Incluir **toda la información** relevante de la reserva
+
+---
+
+## 🎨 Diseño y UX
+
+### Paleta de Colores
+
+-   **Primario**: Tonos tierra/madera (`stone-700`, `stone-800`)
+-   **Acento**: Ámbar cálido (`amber-300`, `amber-50`)
+-   **Fondos**: Stone claro (`stone-50`, `stone-100`)
+
+### Principios
+
+-   **Elegancia**: Reflejar la calidez de las cabañas
+-   **Claridad**: Información fácil de entender
+-   **Responsive**: Mobile-first, funcional en todos los dispositivos
+-   **Accesibilidad**: Contraste adecuado, labels descriptivos
+
+### Componentes shadcn/ui
+
+-   Usar componentes de `components/ui/`
+-   Customizar colores con variables CSS en `globals.css`
+-   Mantener consistencia visual en toda la app
+
+---
+
+## 🔐 Seguridad
+
+### Variables de Entorno
+
+-   **NUNCA** commitear `.env.local`
+-   Mantener `.env.example` actualizado como referencia
+-   Validar variables de entorno al inicio de la app
+
+### Validación
+
+-   **Frontend**: Validación con Zod en formularios
+-   **Backend**: Validación con Zod + Mongoose
+-   **Doble validación**: Nunca confiar solo en frontend
+
+### API Routes
+
+-   Manejar errores apropiadamente
+-   **No exponer** información sensible en respuestas de error
+-   Usar códigos HTTP correctos (200, 201, 400, 500)
+
+---
+
+## 🧪 Testing (Futuro)
+
+### Cuando se implemente testing:
+
+-   **Unit tests**: Para funciones puras y utilidades
+-   **Integration tests**: Para API routes
+-   **E2E tests**: Para flujos críticos (crear reserva)
+-   Usar **Jest** + **React Testing Library**
+
+---
+
+## 🚀 Deployment
+
+### Preparación
+
+```bash
+# 1. Verificar build local
+npm run build
+
+# 2. Probar en producción local
+npm run start
+
+# 3. Verificar variables de entorno
+```
+
+### Plataformas Recomendadas
+
+-   **Vercel** (preferido para Next.js)
+-   Railway, Render, AWS, Digital Ocean
+
+### Variables de Entorno en Producción
+
+-   Configurar todas las variables de `.env.example`
+-   Usar **MongoDB Atlas** para base de datos
+-   Configurar **SMTP** para emails (Gmail o servicio dedicado)
+
+---
+
+## 🔄 Integración n8n (Próximamente)
+
+### Objetivo
+
+-   Escuchar creación de nuevas reservas
+-   Actualizar Excel automáticamente
+-   Realizar conversión ARS → USD
+-   Enviar notificaciones adicionales
+
+### Preparación
+
+-   API está lista para webhooks
+-   Endpoint: `POST /api/reservas`
+-   Respuesta incluye todos los datos necesarios
+
+---
+
+## 📊 Buenas Prácticas Generales
+
+### Git
+
+-   **Commits descriptivos** en español
+-   Formato: `tipo: descripción`
+    -   `feat:` nueva funcionalidad
+    -   `fix:` corrección de bug
+    -   `style:` cambios de formato
+    -   `refactor:` refactorización
+    -   `docs:` documentación
+    -   `chore:` tareas de mantenimiento
+
+### Código
+
+-   **DRY** (Don't Repeat Yourself): Extraer lógica común
+-   **Nombres descriptivos**: Claridad sobre brevedad
+-   **Comentarios** solo cuando la lógica es compleja
+-   **Funciones pequeñas**: Una responsabilidad por función
+
+### Performance
+
+-   Usar **React.memo** cuando sea necesario
+-   Optimizar imágenes antes de agregar
+-   Lazy loading para rutas no críticas
+-   Minimizar bundle size
+
+---
+
+## 🎯 Contexto del Proyecto
+
+### Usuario Final
+
+-   Madre del desarrollador
+-   Gestiona 2 cabañas en San Martín de los Andes
+-   Necesita simplicidad y claridad
+
+### Funcionalidad Core
+
+1. **Crear reservas** con formulario simple
+2. **Cálculos automáticos** (saldo, días)
+3. **Email de confirmación** automático
+4. **Integración futura** con Excel vía n8n
+
+### Prioridades
+
+1. **Simplicidad**: Fácil de usar
+2. **Confiabilidad**: No perder datos
+3. **Automatización**: Menos trabajo manual
+4. **Estética**: Reflejar calidad de las cabañas
+
+---
+
+## 📞 Mantenimiento
+
+### Logs
+
+-   Revisar logs de producción regularmente
+-   Monitorear errores de email
+-   Verificar conexión a MongoDB
+
+### Backups
+
+-   MongoDB: Configurar backups automáticos en Atlas
+-   Código: Git + repositorio remoto
+
+### Actualizaciones
+
+-   Mantener dependencias actualizadas
+-   Probar en local antes de deploy
+-   Documentar breaking changes en CHANGELOG
