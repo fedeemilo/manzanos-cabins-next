@@ -5,9 +5,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
-import { Loader2, Lock } from 'lucide-react'
+import { Loader2, Lock, Download } from 'lucide-react'
 import { login } from '@/lib/auth'
 import toast from 'react-hot-toast'
+import { useInstallPrompt } from '@/lib/useInstallPrompt'
 
 interface LoginFormProps {
     onLoginSuccess: () => void
@@ -18,6 +19,14 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
     const [password, setPassword] = useState('')
     const [isLoading, setIsLoading] = useState(false)
     const [error, setError] = useState('')
+    const { isInstallable, handleInstallClick } = useInstallPrompt()
+
+    const handleInstall = async () => {
+        const outcome = await handleInstallClick()
+        if (outcome === 'accepted') {
+            toast.success('¡App instalada correctamente! 📱')
+        }
+    }
 
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault()
@@ -132,6 +141,18 @@ export default function LoginForm({ onLoginSuccess }: LoginFormProps) {
                     <p className="text-xs text-stone-500 text-center mt-6">
                         Acceso restringido solo para personal autorizado
                     </p>
+
+                    {/* Botón de instalación PWA (solo si es instalable) */}
+                    {isInstallable && (
+                        <button
+                            type="button"
+                            onClick={handleInstall}
+                            className="mt-4 w-full flex items-center justify-center gap-2 text-sm text-stone-600 hover:text-amber-600 transition-colors cursor-pointer"
+                        >
+                            <Download className="h-4 w-4" />
+                            Instalar aplicación en tu dispositivo
+                        </button>
+                    )}
                 </CardContent>
             </Card>
         </div>

@@ -17,7 +17,19 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
     title: 'Cabañas Los Manzanos - Sistema de Reservas',
-    description: 'Sistema de gestión de reservas para Cabañas Los Manzanos, San Martín de los Andes'
+    description:
+        'Sistema de gestión de reservas para Cabañas Los Manzanos, San Martín de los Andes',
+    manifest: '/manifest.json',
+    themeColor: '#44403c',
+    icons: {
+        icon: '/favicon.ico',
+        apple: '/icon-192.png'
+    },
+    appleWebApp: {
+        capable: true,
+        statusBarStyle: 'default',
+        title: 'Los Manzanos'
+    }
 }
 
 export default function RootLayout({
