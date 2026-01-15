@@ -7,6 +7,50 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.2.0] - 2026-01-15 🔐
+
+### ✨ Added - Sistema de Autenticación y Mejoras UX
+
+#### Sistema de Autenticación
+-   **Login completo**: Pantalla de login con usuario y contraseña
+-   **Credenciales en .env**: `AUTH_USERNAME` y `AUTH_PASSWORD` configurables
+-   **Sesión persistente**: localStorage con expiración de 7 días
+-   **AuthGuard**: Componente que protege toda la aplicación
+-   **API Route**: `/api/auth/login` valida credenciales server-side
+-   **Token hasheado**: SHA256 para seguridad básica
+-   **Botón de logout**: Flotante en esquina inferior derecha
+-   **Toast feedback**: Mensajes de éxito para login y logout
+-   **Auto-verificación**: Chequea sesión al cargar la app
+
+#### Validaciones y UX Mejorada
+-   **Validación de fechas**: Limpia automáticamente fecha fin si fecha inicio > fecha fin
+-   **UX inputs numéricos**: Limpia `0` al hacer foco, restaura al salir vacío (Seña y Descuento)
+-   **Total destacado**: Fondos prominentes y texto grande para el monto total de reserva
+    -   Con descuento: Fondo amber-600, texto blanco, text-2xl
+    -   Sin descuento: Degradado stone-700/800, texto blanco, text-3xl
+-   **Banner de éxito**: Información completa de reserva creada con link a Gestión
+
+#### Navegación y Estructura
+-   **Navbar sticky**: Navegación persistente entre Home y Gestión
+-   **Nueva página /gestion**: Administración de reservas y ocupación de cabañas
+-   **DolarDisplay compacto**: Reducido 40% e integrado en navbar (esquina derecha)
+-   **Separación de responsabilidades**: Formulario en Home, administración en /gestion
+
+#### Responsive
+-   **Grid del formulario**: Detección de viewport (useEffect + useState) para layout correcto
+    -   Desktop (≥1024px): Formulario y resumen lado a lado (2fr + 1fr)
+    -   Mobile (<1024px): Apilado verticalmente
+-   **DolarDisplay responsive**: Mejor posicionamiento y escalado adaptativo
+
+### 🔒 Security
+-   Credenciales protegidas en variables de entorno
+-   Validación server-side de autenticación
+-   Token hasheado con SHA256
+-   Expiración automática de sesión
+-   Toda la app protegida con AuthGuard
+
+---
+
 ## [1.1.0] - 2026-01-15 🎨
 
 ### ✨ Added - Navegación y Mejoras Responsive
