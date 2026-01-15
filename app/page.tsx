@@ -1,3 +1,5 @@
+'use client'
+
 import ReservaForm from '@/components/forms/ReservaForm'
 import DolarDisplay from '@/components/shared/DolarDisplay'
 import UltimasReservas from '@/components/shared/UltimasReservas'
