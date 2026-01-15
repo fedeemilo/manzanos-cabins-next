@@ -7,6 +7,49 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.1.0] - 2026-01-15 🎨
+
+### ✨ Added - Navegación y Mejoras Responsive
+
+#### Navegación
+
+-   **Navbar persistente**: Barra de navegación sticky con Next.js Link
+-   **Páginas separadas**:
+    -   `/` - Home: Formulario de nueva reserva
+    -   `/gestion` - Gestión: Últimas reservas + Ocupación de cabañas
+-   **Indicador de ruta activa**: Visual feedback de página actual
+-   **Iconos**: Lucide React para mejor UX
+-   **Dólar Blue integrado**: Movido al navbar para evitar que tape contenido en diferentes anchos
+
+#### Mejoras Responsive
+
+-   **Dólar Blue Display**:
+    -   Ubicado en el centro del navbar con `flex-1 flex justify-center`
+    -   Escala adaptativa: 90% mobile → 100% desktop
+    -   No interfiere con el título en ningún tamaño de pantalla
+-   **Formulario + Resumen**:
+    -   Desktop: Lado a lado (2fr + 1fr)
+    -   Mobile: Apilado verticalmente (Resumen DEBAJO del formulario)
+    -   Sticky solo en desktop (`md:sticky md:top-24`)
+-   **Header responsive**:
+    -   Padding adaptativo: py-12 mobile → py-16 desktop
+    -   Tamaños de texto escalables
+    -   Rating badge responsive con flex-wrap
+
+#### Organización
+
+-   Separación de responsabilidades: Formulario en Home, Gestión en ruta separada
+-   Footer responsive con tamaños de texto adaptativos
+-   Simplificación de página principal (sin DolarDisplay en header)
+-   Eliminación de bloques informativos (Email, Cálculos, n8n)
+
+### 🐛 Fixed
+
+-   **Grid del formulario**: Removido inline style que impedía responsive correcto (desktop ahora muestra formulario y resumen lado a lado)
+-   **Dólar Blue posicionamiento**: Ya no tapa el título en ningún viewport
+
+---
+
 ## [1.0.0] - 2026-01-15 🎉
 
 ### ✨ Added - Integración con n8n + UX Mejorada

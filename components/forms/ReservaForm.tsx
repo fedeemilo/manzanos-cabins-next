@@ -18,13 +18,34 @@ import {
 } from '@/components/ui/select'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { reservaSchema, ReservaFormData } from '@/lib/schemas'
+import SuccessBanner from '@/components/shared/SuccessBanner'
+
+interface ReservaCreada {
+    nombreCompleto: string
+    numeroCabana: string
+    fechaInicio: Date
+    fechaFin: Date
+    costoTotal: number
+}
 
 export default function ReservaForm() {
     const [isLoading, setIsLoading] = useState(false)
     const [cotizacionDolar, setCotizacionDolar] = useState<number>(1200)
     const [tipoCosto, setTipoCosto] = useState<'porDia' | 'total'>('porDia')
     const [disponibilidadError, setDisponibilidadError] = useState('')
+    const [isDesktop, setIsDesktop] = useState(false)
+    const [reservaCreada, setReservaCreada] = useState<ReservaCreada | null>(null)
     const router = useRouter()
+
+    // Detectar tamaño de pantalla
+    useEffect(() => {
+        const checkDesktop = () => {
+            setIsDesktop(window.innerWidth >= 1024)
+        }
+        checkDesktop()
+        window.addEventListener('resize', checkDesktop)
+        return () => window.removeEventListener('resize', checkDesktop)
+    }, [])
 
     const {
         register,
@@ -185,9 +206,13 @@ export default function ReservaForm() {
                 throw new Error(result.message || 'Error al crear la reserva')
             }
 
-            // Mostrar toast de éxito
-            toast.success('¡Reserva creada exitosamente! 🎉', {
-                duration: 2000
+            // Guardar reserva creada para mostrar banner
+            setReservaCreada({
+                nombreCompleto: data.nombreCompleto,
+                numeroCabana: data.numeroCabana,
+                fechaInicio: data.fechaInicio,
+                fechaFin: data.fechaFin,
+                costoTotal: costoTotalFinal
             })
 
             // Primero limpiar errores, luego resetear formulario
@@ -218,21 +243,14 @@ export default function ReservaForm() {
             )
             localStorage.removeItem('reservaFormData')
 
-            // Scroll suave hacia abajo para ver las reservas
-            setTimeout(() => {
-                const ultimasReservasSection = document.querySelector('.ultimas-reservas-section')
-                if (ultimasReservasSection) {
-                    ultimasReservasSection.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    })
-                }
-            }, 500)
+            // Scroll hacia arriba para ver el banner
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            })
 
-            // Auto-refresh después de mostrar el toast y hacer scroll
-            setTimeout(() => {
-                router.refresh()
-            }, 2000)
+            // Refresh para actualizar las listas
+            router.refresh()
         } catch (err: unknown) {
             toast.error(err instanceof Error ? err.message : 'Error al crear la reserva')
         } finally {
@@ -241,8 +259,19 @@ export default function ReservaForm() {
     }
 
     return (
-        <div className="w-full mx-auto px-4" style={{ maxWidth: '1600px' }}>
-            <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+        <div style={{ width: '100%', maxWidth: '1600px', margin: '0 auto', padding: '0 1rem' }}>
+            {/* Banner de éxito */}
+            {reservaCreada && (
+                <SuccessBanner reserva={reservaCreada} onClose={() => setReservaCreada(null)} />
+            )}
+
+            <div
+                style={{
+                    display: 'grid',
+                    gridTemplateColumns: isDesktop ? '2fr 1fr' : '1fr',
+                    gap: '1.5rem'
+                }}
+            >
                 {/* Columna Izquierda: Formulario */}
                 <Card className="shadow-xl border-stone-200">
                     <CardHeader className="space-y-2 bg-linear-to-br from-stone-50 to-stone-100 border-b border-stone-200">
@@ -403,6 +432,15 @@ export default function ReservaForm() {
                                                     .map(Number)
                                                 const date = new Date(year, month - 1, day)
                                                 setValue('fechaInicio', date)
+                                                clearErrors('fechaInicio')
+
+                                                // Si la nueva fecha de inicio es posterior a la fecha de fin,
+                                                // limpiar la fecha de fin para evitar errores
+                                                if (fechaFin && date > fechaFin) {
+                                                    // @ts-expect-error - Limpiando el campo de fecha
+                                                    setValue('fechaFin', undefined)
+                                                    clearErrors('fechaFin')
+                                                }
                                             }
                                         }}
                                         min={new Date().toISOString().split('T')[0]}
@@ -584,12 +622,26 @@ export default function ReservaForm() {
                                         max="100"
                                         className="border-stone-300 focus:border-stone-500"
                                         value={porcentajeDescuento || 0}
+                                        onFocus={e => {
+                                            // Si el valor es 0, limpiar el campo al hacer foco
+                                            if (e.target.value === '0') {
+                                                e.target.value = ''
+                                                setValue('porcentajeDescuento', 0)
+                                            }
+                                        }}
+                                        onBlur={e => {
+                                            // Si el campo está vacío al perder foco, volver a poner 0
+                                            if (e.target.value === '') {
+                                                setValue('porcentajeDescuento', 0)
+                                            }
+                                        }}
                                         onChange={e => {
                                             const value = e.target.value
                                             setValue(
                                                 'porcentajeDescuento',
                                                 value === '' ? 0 : Number(value)
                                             )
+                                            clearErrors('porcentajeDescuento')
                                         }}
                                     />
                                     {errors.porcentajeDescuento && (
@@ -611,9 +663,23 @@ export default function ReservaForm() {
                                     type="number"
                                     className="border-stone-300 focus:border-stone-500"
                                     value={sena || 0}
+                                    onFocus={e => {
+                                        // Si el valor es 0, limpiar el campo al hacer foco
+                                        if (e.target.value === '0') {
+                                            e.target.value = ''
+                                            setValue('sena', 0)
+                                        }
+                                    }}
+                                    onBlur={e => {
+                                        // Si el campo está vacío al perder foco, volver a poner 0
+                                        if (e.target.value === '') {
+                                            setValue('sena', 0)
+                                        }
+                                    }}
                                     onChange={e => {
                                         const value = e.target.value
                                         setValue('sena', value === '' ? 0 : Number(value))
+                                        clearErrors('sena')
                                     }}
                                 />
                                 {errors.sena && (
@@ -640,8 +706,8 @@ export default function ReservaForm() {
                     </CardContent>
                 </Card>
 
-                {/* Columna Derecha: Información Calculada (Sticky) */}
-                <div className="sticky top-6 h-fit">
+                {/* Columna Derecha: Información Calculada (Sticky en desktop) */}
+                <div className="lg:sticky lg:top-24 h-fit">
                     <Card className="shadow-xl border-stone-200">
                         <CardHeader className="bg-linear-to-br from-stone-50 to-stone-100 border-b border-stone-200">
                             <CardTitle className="text-xl font-bold text-stone-800 flex items-center gap-2">
@@ -664,11 +730,11 @@ export default function ReservaForm() {
 
                                     {/* Costo Total sin descuento (solo si no hay descuento) */}
                                     {porcentajeDescuento === 0 && costoTotalFinal > 0 && (
-                                        <div className="bg-stone-50 border border-stone-300 rounded-lg p-4">
-                                            <p className="text-sm text-stone-700 font-medium mb-1">
+                                        <div className="bg-linear-to-br from-stone-700 to-stone-800 border-2 border-stone-900 rounded-lg p-5 shadow-lg">
+                                            <p className="text-sm text-stone-200 font-medium mb-2">
                                                 Costo Total (ARS)
                                             </p>
-                                            <p className="text-2xl font-bold text-stone-900">
+                                            <p className="text-3xl font-bold text-white">
                                                 ${costoTotalFinal.toLocaleString('es-AR')}
                                             </p>
                                         </div>
@@ -693,9 +759,12 @@ export default function ReservaForm() {
                                                         -${montoDescuento.toLocaleString('es-AR')}
                                                     </span>
                                                 </div>
-                                                <div className="flex justify-between border-t border-amber-300 pt-1 mt-1">
-                                                    <span className="font-bold">Total:</span>
-                                                    <span className="font-bold">
+                                                {/* Total destacado */}
+                                                <div className="flex justify-between items-center bg-amber-600 text-white rounded-lg px-3 py-3 mt-2 shadow-md">
+                                                    <span className="font-bold text-base">
+                                                        Total:
+                                                    </span>
+                                                    <span className="font-bold text-2xl">
                                                         ${costoTotalFinal.toLocaleString('es-AR')}
                                                     </span>
                                                 </div>
