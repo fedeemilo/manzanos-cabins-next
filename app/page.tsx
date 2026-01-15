@@ -2,8 +2,8 @@
 
 import ReservaForm from '@/components/forms/ReservaForm'
 import DolarDisplay from '@/components/shared/DolarDisplay'
-import UltimasReservas from '@/components/shared/UltimasReservas'
 import OcupacionCabanas from '@/components/shared/OcupacionCabanas'
+import UltimasReservas from '@/components/shared/UltimasReservas'
 
 export default function Home() {
     return (
