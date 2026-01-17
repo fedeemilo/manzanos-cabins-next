@@ -258,7 +258,7 @@ export default function UltimasReservas() {
                                                 ${reserva.costoTotal.toLocaleString('es-AR')}
                                             </p>
                                             <p className="text-green-600 text-xs">
-                                                ~${reserva.costoTotalUSD.toLocaleString('en-US')}{' '}
+                                                ~${reserva.costoTotalUSD.toLocaleString('es-AR')}{' '}
                                                 USD
                                             </p>
                                         </div>
