@@ -5,7 +5,6 @@ import { MessageCircle } from 'lucide-react'
 import Link from 'next/link'
 import { format } from 'date-fns'
 import { es } from 'date-fns/locale'
-import { acortarURL } from '@/lib/utils'
 
 interface SuccessBannerProps {
     reserva: {
@@ -31,16 +30,12 @@ export default function SuccessBanner({ reserva, onClose }: SuccessBannerProps) 
         })
     }
 
-    const enviarWhatsApp = async () => {
+    const enviarWhatsApp = () => {
         if (!reserva.telefono) return
 
         const nombre = reserva.nombreCompleto.split(' ')[0] // Primer nombre
         const linkReserva = `${window.location.origin}/reserva/${reserva._id}`
-        
-        // Acortar URL
-        const linkCorto = await acortarURL(linkReserva)
-        
-        const mensaje = `Hola ${nombre}!\n\nTe confirmamos que registramos tu reserva en el sistema de Cabañas Los Manzanos.\n\nPodés verificar todos los detalles de tu estadía en el siguiente link:\n${linkCorto}\n\nTe esperamos en San Martín de los Andes!`
+        const mensaje = `Hola ${nombre}!\n\nTe confirmamos que registramos tu reserva en el sistema de Cabañas Los Manzanos.\n\nPodés verificar todos los detalles de tu estadía en el siguiente link:\n${linkReserva}\n\nTe esperamos en San Martín de los Andes!`
 
         const whatsappUrl = `https://wa.me/${reserva.telefono}?text=${encodeURIComponent(mensaje)}`
         window.open(whatsappUrl, '_blank')

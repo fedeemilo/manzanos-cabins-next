@@ -7,6 +7,78 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.5.0] - 2026-01-17 🎨
+
+### ✨ Added - Nuevos Íconos y Mejoras Open Graph
+
+#### Íconos Actualizados
+
+-   **Nuevo diseño**: Cabañita con montaña de fondo (de Flaticon)
+-   **Favicon**: Actualizado `favicon.ico` en `app/` y `public/`
+-   **PWA Icons**: Reemplazados `icon-192.png` y `icon-512.png`
+-   **Apple Touch Icon**: Agregado `apple-touch-icon.png` para iOS
+-   **Manifest**: Actualizado con referencia al nuevo ícono de Apple
+
+#### Open Graph Mejorado
+
+-   **URL absoluta**: Open Graph ahora usa URL completa para imágenes
+-   **Soporte multi-entorno**: Usa `NEXT_PUBLIC_URL` o fallback a producción
+-   **Preview en WhatsApp**: Imagen de cabañas (`cabin-preview.png`) ahora se muestra correctamente
+
+**Antes:**
+```typescript
+url: '/cabin-preview.png'  // ❌ URL relativa, no funciona en WhatsApp
+```
+
+**Después:**
+```typescript
+const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://cabanas-manzanos.vercel.app'
+url: `${baseUrl}/cabin-preview.png`  // ✅ URL absoluta
+```
+
+### 🗑️ Removed - Acortador de URLs
+
+-   **Removida función `acortarURL()`**: Links ahora se envían completos
+-   **Causa**: Preferencia del usuario por simplicidad
+-   **Impacto**: Links en WhatsApp serán más largos pero más confiables
+
+**Antes:**
+```
+https://is.gd/abc123
+```
+
+**Después:**
+```
+https://cabanas-manzanos.vercel.app/reserva/696bb8123066dcb8d4e3bf86
+```
+
+### 🔧 Changed
+
+-   **`app/reserva/[id]/layout.tsx`**: 
+    -   URL de Open Graph ahora es absoluta
+    -   Removido parámetro `id` no utilizado
+-   **`lib/utils.ts`**: Removida función `acortarURL()`
+-   **`components/shared/SuccessBanner.tsx`**: Links sin acortar
+-   **`components/shared/UltimasReservas.tsx`**: Links sin acortar
+-   **`public/manifest.json`**: Agregado `apple-touch-icon.png`
+-   **`app/layout.tsx`**: Vinculado `apple-touch-icon.png` en metadata
+
+### 🎯 Íconos Incluidos
+
+```
+public/
+  ├── favicon.ico          (nuevo diseño)
+  ├── icon-192.png         (PWA - Android)
+  ├── icon-512.png         (PWA - Android)
+  ├── apple-touch-icon.png (PWA - iOS)
+  └── cabin-preview.png    (Open Graph)
+
+app/
+  └── favicon.ico          (copia para Next.js 16)
+```
+
+---
+
 ## [1.4.1] - 2026-01-17 🔒
 
 ### 🐛 Fixed - Seguridad en Página Pública

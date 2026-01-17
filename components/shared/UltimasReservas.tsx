@@ -4,7 +4,6 @@ import { useState, useEffect } from 'react'
 import { FileText, Home, Check, Clock, MessageCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { acortarURL } from '@/lib/utils'
 
 interface Reserva {
     _id: string
@@ -219,11 +218,10 @@ export default function UltimasReservas() {
                                             {/* Botón WhatsApp */}
                                             {reserva.telefono && (
                                                 <Button
-                                                    onClick={async () => {
+                                                    onClick={() => {
                                                         const nombre = reserva.nombreCompleto.split(' ')[0]
                                                         const linkReserva = `${window.location.origin}/reserva/${reserva._id}`
-                                                        const linkCorto = await acortarURL(linkReserva)
-                                                        const mensaje = `Hola ${nombre}!\n\nTe compartimos el detalle de tu reserva en Cabañas Los Manzanos:\n${linkCorto}\n\nTe esperamos en San Martín de los Andes!`
+                                                        const mensaje = `Hola ${nombre}!\n\nTe compartimos el detalle de tu reserva en Cabañas Los Manzanos:\n${linkReserva}\n\nTe esperamos en San Martín de los Andes!`
                                                         const whatsappUrl = `https://wa.me/${reserva.telefono}?text=${encodeURIComponent(mensaje)}`
                                                         window.open(whatsappUrl, '_blank')
                                                     }}

@@ -1,11 +1,8 @@
 import type { Metadata } from 'next'
 
-export async function generateMetadata({
-    params
-}: {
-    params: Promise<{ id: string }>
-}): Promise<Metadata> {
-    const { id } = await params
+export async function generateMetadata(): Promise<Metadata> {
+    // URL base para Open Graph (debe ser absoluta)
+    const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://cabanas-manzanos.vercel.app'
 
     return {
         title: 'Reserva - Cabañas Los Manzanos',
@@ -16,7 +13,7 @@ export async function generateMetadata({
             description: 'Tu estadía en San Martín de los Andes te espera!',
             images: [
                 {
-                    url: '/cabin-preview.png',
+                    url: `${baseUrl}/cabin-preview.png`,
                     width: 1200,
                     height: 630,
                     alt: 'Cabañas Los Manzanos - San Martín de los Andes'
@@ -30,7 +27,7 @@ export async function generateMetadata({
             card: 'summary_large_image',
             title: 'Reserva en Cabañas Los Manzanos',
             description: 'Tu estadía en San Martín de los Andes te espera!',
-            images: ['/cabin-preview.png']
+            images: [`${baseUrl}/cabin-preview.png`]
         }
     }
 }
