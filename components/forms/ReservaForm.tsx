@@ -219,28 +219,24 @@ export default function ReservaForm() {
             clearErrors() // Limpiar todos los errores de validación
             setDisponibilidadError('') // Limpiar error de disponibilidad
 
-            // Reset sin validar
+            // Reset completamente el formulario
             reset(
-                {
-                    sena: 0,
-                    porcentajeDescuento: 0,
-                    costoTotal: undefined,
-                    costoPorDia: undefined,
-                    nombreCompleto: '',
-                    numeroCabana: undefined,
-                    origenReserva: undefined,
-                    fechaInicio: undefined,
-                    fechaFin: undefined
-                },
+                {},
                 {
                     keepErrors: false,
                     keepDirty: false,
                     keepIsSubmitted: false,
                     keepTouched: false,
                     keepIsValid: false,
-                    keepSubmitCount: false
+                    keepSubmitCount: false,
+                    keepDefaultValues: false
                 }
             )
+
+            // Luego setear manualmente los valores por defecto
+            setValue('sena', 0, { shouldValidate: false })
+            setValue('porcentajeDescuento', 0, { shouldValidate: false })
+            
             localStorage.removeItem('reservaFormData')
 
             // Scroll hacia arriba para ver el banner
@@ -321,10 +317,10 @@ export default function ReservaForm() {
                                     Número de Cabaña
                                 </Label>
                                 <Select
-                                    value={numeroCabana}
+                                    value={numeroCabana || ''}
                                     onValueChange={value => {
                                         setValue('numeroCabana', value as '1' | '2', {
-                                            shouldValidate: true
+                                            shouldValidate: false
                                         })
                                         clearErrors('numeroCabana')
                                     }}
@@ -353,12 +349,12 @@ export default function ReservaForm() {
                                     Origen de la Reserva
                                 </Label>
                                 <Select
-                                    value={origenReserva}
+                                    value={origenReserva || ''}
                                     onValueChange={value => {
                                         setValue(
                                             'origenReserva',
                                             value as 'Booking' | 'Airbnb' | 'Particular' | 'Otro',
-                                            { shouldValidate: true }
+                                            { shouldValidate: false }
                                         )
                                         clearErrors('origenReserva')
                                     }}

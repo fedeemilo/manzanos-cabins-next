@@ -15,7 +15,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 -   **Modal AlertDialog**: Confirmación antes de cerrar sesión para prevenir errores accidentales
 -   **Integración shadcn/ui**: Componente `alert-dialog` con animaciones suaves
--   **Diseño claro**: 
+-   **Diseño claro**:
     -   Overlay oscuro semi-transparente
     -   Card centrado con zoom-in animation
     -   Botón rojo con texto blanco para acción destructiva
@@ -28,32 +28,30 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 **Solución**: Modal de confirmación que requiere acción explícita para logout.
 
 **Antes:**
+
 ```tsx
-<Button onClick={handleLogout}>
-  Cerrar Sesión
-</Button>
+<Button onClick={handleLogout}>Cerrar Sesión</Button>
 ```
 
 **Después:**
+
 ```tsx
 <AlertDialog>
-  <AlertDialogTrigger asChild>
-    <Button>Cerrar Sesión</Button>
-  </AlertDialogTrigger>
-  <AlertDialogContent>
-    <AlertDialogHeader>
-      <AlertDialogTitle>¿Cerrar sesión?</AlertDialogTitle>
-      <AlertDialogDescription>
-        ¿Estás seguro que querés cerrar sesión?...
-      </AlertDialogDescription>
-    </AlertDialogHeader>
-    <AlertDialogFooter>
-      <AlertDialogCancel>Cancelar</AlertDialogCancel>
-      <AlertDialogAction onClick={handleLogout}>
-        Cerrar Sesión
-      </AlertDialogAction>
-    </AlertDialogFooter>
-  </AlertDialogContent>
+    <AlertDialogTrigger asChild>
+        <Button>Cerrar Sesión</Button>
+    </AlertDialogTrigger>
+    <AlertDialogContent>
+        <AlertDialogHeader>
+            <AlertDialogTitle>¿Cerrar sesión?</AlertDialogTitle>
+            <AlertDialogDescription>
+                ¿Estás seguro que querés cerrar sesión?...
+            </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleLogout}>Cerrar Sesión</AlertDialogAction>
+        </AlertDialogFooter>
+    </AlertDialogContent>
 </AlertDialog>
 ```
 
