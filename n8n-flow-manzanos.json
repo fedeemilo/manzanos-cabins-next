@@ -91,7 +91,7 @@
                 "columns": {
                     "mappingMode": "defineBelow",
                     "value": {
-                        "Fecha Registro": "={{ $now.format('dd/MM/yyyy HH:mm') }}",
+                        "Fecha Registro": "={{ $now.setZone('America/Buenos_Aires').toFormat('dd/MM/yyyy HH:mm') }}",
                         "Nombre Completo": "={{ $json.nombreCompleto }}",
                         "Cabaña": "={{ $json.numeroCabana }}",
                         "Origen": "={{ $json.origenReserva }}",

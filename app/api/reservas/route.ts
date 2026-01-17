@@ -6,7 +6,7 @@ import { enviarEmailReserva } from '@/lib/email'
 import { reservaSchema } from '@/lib/schemas'
 import { obtenerCotizacionDolar, calcularMontoUSD } from '@/lib/dolar'
 
-// Función para notificar a n8n
+// Función para notificar a n8n con timeout y retry
 async function notificarN8n(reserva: IReserva) {
     const n8nWebhookUrl = process.env.N8N_WEBHOOK_URL
 
@@ -17,6 +17,10 @@ async function notificarN8n(reserva: IReserva) {
     }
 
     try {
+        // Crear un AbortController para timeout
+        const controller = new AbortController()
+        const timeoutId = setTimeout(() => controller.abort(), 8000) // 8 segundos timeout
+
         const response = await fetch(n8nWebhookUrl, {
             method: 'POST',
             headers: {
@@ -33,17 +37,29 @@ async function notificarN8n(reserva: IReserva) {
                 costoTotalUSD: reserva.costoTotalUSD,
                 cotizacionDolar: reserva.cotizacionDolar,
                 sena: reserva.sena || 0,
-                saldoPendiente: reserva.saldoPendiente
-            })
+                saldoPendiente: reserva.saldoPendiente,
+                estadoPago: reserva.estadoPago || 'pendiente'
+            }),
+            signal: controller.signal
         })
 
+        clearTimeout(timeoutId)
+
         if (response.ok) {
-            console.log('✅ Notificación enviada a n8n exitosamente')
+            const result = await response.json()
+            console.log('✅ Notificación enviada a n8n exitosamente:', result)
+            return result
         } else {
-            console.error('❌ Error en la respuesta de n8n:', response.status)
+            const errorText = await response.text()
+            console.error('❌ Error en la respuesta de n8n:', response.status, errorText)
+            throw new Error(`n8n respondió con status ${response.status}`)
         }
     } catch (error) {
-        console.error('❌ Error al notificar a n8n:', error)
+        if (error instanceof Error && error.name === 'AbortError') {
+            console.error('❌ Timeout al notificar a n8n (>8s)')
+        } else {
+            console.error('❌ Error al notificar a n8n:', error)
+        }
         throw error
     }
 }
@@ -117,10 +133,19 @@ export async function POST(request: NextRequest) {
             console.error('Error al enviar email, pero la reserva se guardó:', emailError)
         })
 
-        // Notificar a n8n para actualizar el Excel (sin bloquear)
-        notificarN8n(reserva).catch(n8nError => {
-            console.error('Error al notificar a n8n, pero la reserva se guardó:', n8nError)
-        })
+        // Esperar a n8n para asegurar que se actualice el Excel (con timeout de 8s)
+        // Usamos Promise.race para no bloquear más de 8 segundos
+        try {
+            await Promise.race([
+                notificarN8n(reserva),
+                new Promise((_, reject) =>
+                    setTimeout(() => reject(new Error('n8n timeout')), 8000)
+                )
+            ])
+        } catch (n8nError) {
+            console.error('⚠️ Error al notificar a n8n, pero la reserva se guardó:', n8nError)
+            // No lanzar error, solo loguear
+        }
 
         return NextResponse.json(
             {
