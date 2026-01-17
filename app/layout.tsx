@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import { Geist, Geist_Mono } from 'next/font/google'
 import { Toaster } from 'react-hot-toast'
 import './globals.css'
-import Navbar from '@/components/shared/Navbar'
 import AuthGuard from '@/components/auth/AuthGuard'
 
 const geistSans = Geist({
@@ -41,7 +40,6 @@ export default function RootLayout({
         <html lang="es">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
                 <AuthGuard>
-                    <Navbar />
                     {children}
                 </AuthGuard>
                 <Toaster

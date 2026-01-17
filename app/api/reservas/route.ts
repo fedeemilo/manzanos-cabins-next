@@ -2,7 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ZodError } from 'zod'
 import dbConnect from '@/lib/mongodb'
 import Reserva, { IReserva } from '@/models/Reserva'
-import { enviarEmailReserva } from '@/lib/email'
 import { reservaSchema } from '@/lib/schemas'
 import { obtenerCotizacionDolar, calcularMontoUSD } from '@/lib/dolar'
 
@@ -125,12 +124,8 @@ export async function POST(request: NextRequest) {
             saldoPendiente: saldoPendiente,
             estadoPago: estadoPago,
             costoPorDia: validatedData.costoPorDia,
-            porcentajeDescuento: validatedData.porcentajeDescuento || 0
-        })
-
-        // Enviar el email en segundo plano (sin bloquear la respuesta)
-        enviarEmailReserva(reserva).catch(emailError => {
-            console.error('Error al enviar email, pero la reserva se guardó:', emailError)
+            porcentajeDescuento: validatedData.porcentajeDescuento || 0,
+            telefono: validatedData.telefono || undefined
         })
 
         // Esperar a n8n para asegurar que se actualice el Excel (con timeout de 8s)

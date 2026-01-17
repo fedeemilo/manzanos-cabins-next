@@ -3,6 +3,11 @@ import { z } from 'zod'
 export const reservaSchema = z
     .object({
         nombreCompleto: z.string().min(3, 'El nombre debe tener al menos 3 caracteres'),
+        telefono: z
+            .string()
+            .regex(/^[0-9]*$/, 'El teléfono solo puede contener números')
+            .optional()
+            .or(z.literal('')),
         numeroCabana: z.enum(['1', '2'], {
             message: 'Por favor, seleccioná el número de cabaña'
         }),

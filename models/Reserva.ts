@@ -2,6 +2,7 @@ import mongoose, { Schema, Document } from 'mongoose'
 
 export interface IReserva extends Document {
     nombreCompleto: string
+    telefono?: string
     numeroCabana: string
     origenReserva: string
     sena: number
@@ -24,6 +25,11 @@ const ReservaSchema: Schema = new Schema(
         nombreCompleto: {
             type: String,
             required: [true, 'El nombre completo es requerido'],
+            trim: true
+        },
+        telefono: {
+            type: String,
+            required: false,
             trim: true
         },
         numeroCabana: {

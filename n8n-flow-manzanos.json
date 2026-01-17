@@ -1,178 +1,681 @@
 {
-    "name": "Manzanos Cabins - Registro de Reservas",
-    "nodes": [
-        {
-            "parameters": {
-                "httpMethod": "POST",
-                "path": "reserva-creada",
-                "responseMode": "lastNode",
-                "options": {}
+  "name": "Manzanos Cabins - Registro de Reservas",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "reserva-creada",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "e268a40c-df82-48e9-84a1-f6efdb0e0d24",
+      "name": "Webhook - Reserva Creada",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        48
+      ],
+      "webhookId": "reserva-manzanos"
+    },
+    {
+      "parameters": {
+        "values": {
+          "string": [
+            {
+              "name": "nombreCompleto",
+              "value": "={{ $json.body.nombreCompleto }}"
             },
-            "id": "webhook-reserva",
-            "name": "Webhook - Reserva Creada",
-            "type": "n8n-nodes-base.webhook",
-            "typeVersion": 1,
-            "position": [250, 300],
-            "webhookId": "reserva-manzanos"
-        },
-        {
-            "parameters": {
-                "values": {
-                    "string": [
-                        {
-                            "name": "nombreCompleto",
-                            "value": "={{ $json.body.nombreCompleto }}"
-                        },
-                        {
-                            "name": "numeroCabana",
-                            "value": "={{ $json.body.numeroCabana }}"
-                        },
-                        {
-                            "name": "origenReserva",
-                            "value": "={{ $json.body.origenReserva }}"
-                        },
-                        {
-                            "name": "fechaInicio",
-                            "value": "={{ $json.body.fechaInicio }}"
-                        },
-                        {
-                            "name": "fechaFin",
-                            "value": "={{ $json.body.fechaFin }}"
-                        },
-                        {
-                            "name": "cantidadDias",
-                            "value": "={{ $json.body.cantidadDias }}"
-                        }
-                    ],
-                    "number": [
-                        {
-                            "name": "costoTotal",
-                            "value": "={{ $json.body.costoTotal }}"
-                        },
-                        {
-                            "name": "costoTotalUSD",
-                            "value": "={{ $json.body.costoTotalUSD }}"
-                        },
-                        {
-                            "name": "cotizacionDolar",
-                            "value": "={{ $json.body.cotizacionDolar }}"
-                        },
-                        {
-                            "name": "sena",
-                            "value": "={{ $json.body.sena }}"
-                        },
-                        {
-                            "name": "saldoPendiente",
-                            "value": "={{ $json.body.saldoPendiente }}"
-                        }
-                    ]
-                },
-                "options": {}
+            {
+              "name": "numeroCabana",
+              "value": "={{ $json.body.numeroCabana }}"
             },
-            "id": "set-datos",
-            "name": "Formatear Datos",
-            "type": "n8n-nodes-base.set",
-            "typeVersion": 1,
-            "position": [470, 300]
-        },
-        {
-            "parameters": {
-                "operation": "append",
-                "documentId": {
-                    "__rl": true,
-                    "value": "1RMM_6cjiF-L4B6dluCznBNmdbV3lsgQM2OES0k61DRQ",
-                    "mode": "id"
-                },
-                "sheetName": {
-                    "__rl": true,
-                    "value": "={{ $now.setZone('America/Buenos_Aires').toFormat('yyyy') }}",
-                    "mode": "name"
-                },
-                "columns": {
-                    "mappingMode": "defineBelow",
-                    "value": {
-                        "Fecha Registro": "={{ $now.setZone('America/Buenos_Aires').toFormat('dd/MM/yyyy HH:mm') }}",
-                        "Nombre Completo": "={{ $json.nombreCompleto }}",
-                        "Cabaña": "={{ $json.numeroCabana }}",
-                        "Origen": "={{ $json.origenReserva }}",
-                        "Fecha Inicio": "={{ $json.fechaInicio }}",
-                        "Fecha Fin": "={{ $json.fechaFin }}",
-                        "Días": "={{ $json.cantidadDias }}",
-                        "Costo Total (ARS)": "={{ $json.costoTotal }}",
-                        "Costo Total (USD)": "={{ $json.costoTotalUSD }}",
-                        "Cotización Dólar": "={{ $json.cotizacionDolar }}",
-                        "Seña": "={{ $json.sena }}",
-                        "Saldo Pendiente": "={{ $json.saldoPendiente }}"
-                    }
-                },
-                "options": {}
+            {
+              "name": "origenReserva",
+              "value": "={{ $json.body.origenReserva }}"
             },
-            "id": "google-sheets",
-            "name": "Agregar a Google Sheets",
-            "type": "n8n-nodes-base.googleSheets",
-            "typeVersion": 4,
-            "position": [690, 300],
-            "credentials": {
-                "googleSheetsOAuth2Api": {
-                    "id": "TU_CREDENCIAL_GOOGLE",
-                    "name": "Google Sheets account"
-                }
+            {
+              "name": "fechaInicio",
+              "value": "={{ $json.body.fechaInicio }}"
+            },
+            {
+              "name": "fechaFin",
+              "value": "={{ $json.body.fechaFin }}"
+            },
+            {
+              "name": "cantidadDias",
+              "value": "={{ $json.body.cantidadDias }}"
             }
-        },
-        {
-            "parameters": {
-                "respondWith": "json",
-                "responseBody": "={{ { \"success\": true, \"message\": \"Reserva registrada en Google Sheets\" } }}"
+          ],
+          "number": [
+            {
+              "name": "costoTotal",
+              "value": "={{ $json.body.costoTotal }}"
             },
-            "id": "respond-webhook",
-            "name": "Responder Webhook",
-            "type": "n8n-nodes-base.respondToWebhook",
-            "typeVersion": 1,
-            "position": [910, 300]
-        }
-    ],
-    "connections": {
-        "Webhook - Reserva Creada": {
-            "main": [
-                [
-                    {
-                        "node": "Formatear Datos",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
+            {
+              "name": "costoTotalUSD",
+              "value": "={{ $json.body.costoTotalUSD }}"
+            },
+            {
+              "name": "cotizacionDolar",
+              "value": "={{ $json.body.cotizacionDolar }}"
+            },
+            {
+              "name": "sena",
+              "value": "={{ $json.body.sena }}"
+            },
+            {
+              "name": "saldoPendiente",
+              "value": "={{ $json.body.saldoPendiente }}"
+            }
+          ]
         },
-        "Formatear Datos": {
-            "main": [
-                [
-                    {
-                        "node": "Agregar a Google Sheets",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
+        "options": {}
+      },
+      "id": "8169cdfc-634e-4e19-afb1-70c6c3846c9a",
+      "name": "Formatear Datos",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 1,
+      "position": [
+        -48,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"success\": true, \"message\": \"Reserva registrada en Google Sheets\" } }}",
+        "options": {}
+      },
+      "id": "832e6c9f-0dd9-431b-814e-404bae82955b",
+      "name": "Responder Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [
+        832,
+        48
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "e5f753e0-3721-4892-86b1-8afd2e8fbbc7",
+              "leftValue": "={{ $json.body.numeroCabana }}",
+              "rightValue": "1",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
         },
-        "Agregar a Google Sheets": {
-            "main": [
-                [
-                    {
-                        "node": "Responder Webhook",
-                        "type": "main",
-                        "index": 0
-                    }
-                ]
-            ]
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        160,
+        48
+      ],
+      "id": "18eaddeb-38e9-4eeb-9b7d-0a1bb19f1597",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1RMM_6cjiF-L4B6dluCznBNmdbV3lsgQM2OES0k61DRQ",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $now.setZone('America/Buenos_Aires').toFormat('yyyy') }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha Registro (1)": "={{ $now.setZone('America/Buenos_Aires').toFormat('dd/MM/yyyy HH:mm') }}",
+            "Nombre (1)": "={{ $json.nombreCompleto }}",
+            "Origen (1)": "={{ $json.origenReserva }}",
+            "Fecha Estadía (1)": "={{ $json.fechaInicio.split('-').slice(1).reverse().join('-') }} al {{ $json.fechaFin.split('-').slice(1).reverse().join('-') }}",
+            "Días (1)": "={{ $json.cantidadDias }}",
+            "Costo Total (1)": "={{ '$' + $json.costoTotal.toLocaleString('es-AR') }}",
+            "Costo Dólar (1)": "={{ 'U$S ' + $json.costoTotalUSD.toLocaleString('es-AR') }}",
+            "Seña (1)": "={{ '$' + $json.sena.toLocaleString('es-AR') }}",
+            "Saldo Pendiente (1)": "={{ '$' + $json.saldoPendiente.toLocaleString('es-AR') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Fecha Registro (1)",
+              "displayName": "Fecha Registro (1)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre (1)",
+              "displayName": "Nombre (1)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Origen (1)",
+              "displayName": "Origen (1)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Fecha Estadía (1)",
+              "displayName": "Fecha Estadía (1)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Días (1)",
+              "displayName": "Días (1)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Costo Total (1)",
+              "displayName": "Costo Total (1)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Costo Dólar (1)",
+              "displayName": "Costo Dólar (1)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Seña (1)",
+              "displayName": "Seña (1)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Saldo Pendiente (1)",
+              "displayName": "Saldo Pendiente (1)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Fecha Registro (2)",
+              "displayName": "Fecha Registro (2)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Nombre (2)",
+              "displayName": "Nombre (2)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Origen (2)",
+              "displayName": "Origen (2)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Fecha Estadía (2)",
+              "displayName": "Fecha Estadía (2)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Días (2)",
+              "displayName": "Días (2)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Costo Total (2)",
+              "displayName": "Costo Total (2)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Costo Dólar (2)",
+              "displayName": "Costo Dólar (2)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Seña (2)",
+              "displayName": "Seña (2)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Saldo Pendiente (2)",
+              "displayName": "Saldo Pendiente (2)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "locationDefine": {
+            "values": {
+              "headerRow": 4
+            }
+          }
         }
+      },
+      "id": "35a92489-a7b6-4de4-8c09-1531a2029d83",
+      "name": "Agregar a Hoja de CABAÑA 1",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        464,
+        -48
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "O5YP0rdseHxEeYbe",
+          "name": "Google Sheets - fedmilo91@gmail.com"
+        }
+      }
     },
-    "pinData": {},
-    "settings": {
-        "executionOrder": "v1"
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1RMM_6cjiF-L4B6dluCznBNmdbV3lsgQM2OES0k61DRQ",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "={{ $now.setZone('America/Buenos_Aires').toFormat('yyyy') }}",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Fecha Registro (2)": "={{ $now.setZone('America/Buenos_Aires').toFormat('dd/MM/yyyy HH:mm') }}",
+            "Nombre (2)": "={{ $json.nombreCompleto }}",
+            "Fecha Estadía (2)": "={{ $json.fechaInicio.split('-').slice(1).reverse().join('-') }} al {{ $json.fechaFin.split('-').slice(1).reverse().join('-') }}",
+            "Origen (2)": "={{ $json.origenReserva }}",
+            "Días (2)": "={{ $json.cantidadDias }}",
+            "Costo Total (2)": "={{ '$' + $json.costoTotal.toLocaleString('es-AR') }}",
+            "Costo Dólar (2)": "={{ 'U$S ' + $json.costoTotalUSD.toLocaleString('es-AR') }}",
+            "Seña (2)": "={{ '$' + $json.sena.toLocaleString('es-AR') }}",
+            "Saldo Pendiente (2)": "={{ '$' + $json.saldoPendiente.toLocaleString('es-AR') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Fecha Registro (1)",
+              "displayName": "Fecha Registro (1)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Nombre (1)",
+              "displayName": "Nombre (1)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Origen (1)",
+              "displayName": "Origen (1)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Fecha Estadía (1)",
+              "displayName": "Fecha Estadía (1)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Días (1)",
+              "displayName": "Días (1)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Costo Total (1)",
+              "displayName": "Costo Total (1)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Costo Dólar (1)",
+              "displayName": "Costo Dólar (1)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Seña (1)",
+              "displayName": "Seña (1)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Saldo Pendiente (1)",
+              "displayName": "Saldo Pendiente (1)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "Fecha Registro (2)",
+              "displayName": "Fecha Registro (2)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Nombre (2)",
+              "displayName": "Nombre (2)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Origen (2)",
+              "displayName": "Origen (2)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Fecha Estadía (2)",
+              "displayName": "Fecha Estadía (2)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Días (2)",
+              "displayName": "Días (2)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Costo Total (2)",
+              "displayName": "Costo Total (2)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Costo Dólar (2)",
+              "displayName": "Costo Dólar (2)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Seña (2)",
+              "displayName": "Seña (2)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Saldo Pendiente (2)",
+              "displayName": "Saldo Pendiente (2)",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "locationDefine": {
+            "values": {
+              "headerRow": 4
+            }
+          }
+        }
+      },
+      "id": "e7b657a4-c81b-4f9d-8057-3dce6805936e",
+      "name": "Agregar a Hoja de CABAÑA 2",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4,
+      "position": [
+        464,
+        160
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "O5YP0rdseHxEeYbe",
+          "name": "Google Sheets - fedmilo91@gmail.com"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook - Reserva Creada": {
+      "main": [
+        [
+          {
+            "node": "Formatear Datos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
     },
-    "staticData": null,
-    "tags": [],
-    "triggerCount": 0,
-    "updatedAt": "2026-01-15T00:00:00.000Z",
-    "versionId": "1"
+    "Formatear Datos": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Agregar a Hoja de CABAÑA 1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Agregar a Hoja de CABAÑA 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agregar a Hoja de CABAÑA 1": {
+      "main": [
+        [
+          {
+            "node": "Responder Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agregar a Hoja de CABAÑA 2": {
+      "main": [
+        [
+          {
+            "node": "Responder Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "c8260ab4-58ae-4d59-89b0-c99f68d7ad80",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "0b121fff2df63b640df79a98efcc28cbd6d648a8badf573291b7d642d24d4040"
+  },
+  "id": "bpKQR6Z6o5i81nbm9YUQ8",
+  "tags": []
 }

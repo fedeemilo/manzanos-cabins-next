@@ -7,6 +7,168 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ---
 
+## [1.4.1] - 2026-01-17 🔒
+
+### 🐛 Fixed - Seguridad en Página Pública
+
+#### Navbar Oculto en Rutas Públicas
+
+-   **Problema**: El Navbar con navegación (Nueva Reserva, Gestión) era visible en páginas públicas
+-   **Impacto**: Clientes podían ver links a áreas administrativas (aunque sin acceso)
+-   **Solución**: Movido Navbar dentro de AuthGuard con renderizado condicional
+
+**Causa**: El Navbar estaba en `app/layout.tsx` fuera del control de rutas públicas, renderizándose siempre.
+
+**Solución**: 
+- Movido `Navbar` de `layout.tsx` a `AuthGuard.tsx`
+- Renderizado condicional: `{!isPublicRoute && <Navbar />}`
+- Solo usuarios autenticados ven navegación
+
+**Antes:**
+```tsx
+// app/layout.tsx
+<AuthGuard>
+    <Navbar />  {/* Siempre visible */}
+    {children}
+</AuthGuard>
+```
+
+**Después:**
+```tsx
+// components/auth/AuthGuard.tsx
+return (
+    <>
+        {!isPublicRoute && <Navbar />}  {/* Solo en rutas privadas */}
+        {children}
+        {!isPublicRoute && <FloatingButtons />}
+    </>
+)
+```
+
+#### Mensajes WhatsApp sin Emojis
+
+-   **Problema**: Emojis (👋 🏡 🏔️) se convertían en caracteres especiales (◆) en WhatsApp
+-   **Causa**: Problemas de encoding UTF-8 en URLs de WhatsApp
+-   **Solución**: Removidos todos los emojis y caracteres especiales de mensajes
+
+**Antes:**
+```
+Hola Juan! 👋
+Te confirmamos... *Cabañas Los Manzanos*. 🏡
+¡Te esperamos... Andes! 🏔️
+```
+
+**Después:**
+```
+Hola Juan!
+Te confirmamos... Cabañas Los Manzanos.
+Te esperamos... Andes!
+```
+
+### 🎯 Mejoras de Seguridad
+
+-   **Navbar**: No visible en `/reserva/[id]`
+-   **Botones flotantes**: No visibles en rutas públicas
+-   **Separación clara**: UI administrativa vs. UI pública
+
+### 🔧 Changed
+
+-   **`app/layout.tsx`**: Removido import y renderizado de `Navbar`
+-   **`components/auth/AuthGuard.tsx`**: 
+    -   Agregado import de `Navbar`
+    -   Renderizado condicional de `Navbar` basado en `isPublicRoute`
+-   **`components/shared/SuccessBanner.tsx`**: Mensaje WhatsApp sin emojis
+-   **`components/shared/UltimasReservas.tsx`**: Mensaje WhatsApp sin emojis
+-   **`.cursorrules`**: 
+    -   Agregada sección de Interactividad con regla `cursor-pointer`
+    -   Actualizada sección de Sistema de Notificaciones (Email → WhatsApp)
+    -   Actualizada estructura de archivos y funcionalidad core
+
+---
+
+## [1.4.0] - 2026-01-17 📱
+
+### ✨ Added - Sistema de WhatsApp y Página Pública de Reservas
+
+#### Reemplazo de Email por WhatsApp
+
+-   **Campo teléfono**: Input opcional en formulario de reserva (solo números)
+-   **Validación de teléfono**: Regex en Zod para asegurar solo números
+-   **Botón WhatsApp en SuccessBanner**: Envía mensaje preformateado al cliente
+-   **Botón WhatsApp en UltimasReservas**: Ícono sutil con tooltip para reenviar confirmación
+-   **Mensaje personalizado**: Saluda por nombre + link a página pública de reserva
+-   **Almacenamiento en BD**: Campo `telefono` en modelo Mongoose
+
+#### Página Pública de Reserva (`/reserva/[id]`)
+
+-   **Vista pública**: No requiere autenticación
+-   **Diseño elegante**: Card con toda la información de la reserva
+-   **Responsive**: Se adapta perfectamente a mobile
+-   **Información completa**:
+    -   Datos del huésped (nombre, teléfono)
+    -   Detalles de estadía (cabaña, fechas, días)
+    -   Información financiera (ARS, USD, cotización, seña, saldo)
+    -   Estado de pago
+-   **Branding**: Header y footer con nombre y ubicación de las cabañas
+-   **API pública**: Endpoint `GET /api/reservas/public/[id]` para obtener datos
+
+#### Mejoras de UX
+
+-   **Botón "Nueva Reserva"**: En SuccessBanner para workflow ágil
+-   **Formato USD argentino**: `$1.122` en vez de `$1,122` para familiaridad local
+-   **AuthGuard mejorado**: Excluye rutas públicas (`/reserva/[id]`) de autenticación
+-   **Botones flotantes ocultos**: No se muestran en páginas públicas
+
+### 🗑️ Removed
+
+-   **Sistema de emails**: Eliminado `lib/email.ts` y todas las referencias
+-   **Nodemailer**: Ya no se usa
+-   **Variables de entorno EMAIL_***: Ya no son necesarias
+
+### 🔧 Changed
+
+-   **`lib/schemas.ts`**: Agregado campo `telefono` (opcional, solo números)
+-   **`models/Reserva.ts`**: Agregado campo `telefono` (String, optional)
+-   **`app/api/reservas/route.ts`**: 
+    -   Removido import de `enviarEmailReserva`
+    -   Agregado guardado de `telefono`
+-   **`components/shared/SuccessBanner.tsx`**:
+    -   Agregado prop `telefono` y `_id`
+    -   Botón WhatsApp condicional (solo si hay teléfono)
+    -   Función `enviarWhatsApp()` con mensaje preformateado
+-   **`components/shared/UltimasReservas.tsx`**:
+    -   Agregado botón WhatsApp junto a "Marcar Pagado"
+    -   Solo visible si la reserva tiene teléfono
+-   **`components/forms/ReservaForm.tsx`**:
+    -   Agregado input de teléfono con validación inline
+    -   Pasado `_id` y `telefono` a `SuccessBanner`
+-   **`components/auth/AuthGuard.tsx`**:
+    -   Agregado `usePathname` de Next.js
+    -   Array `publicRoutes` para excepciones
+    -   Lógica para bypass de autenticación en rutas públicas
+    -   Ocultación de botones flotantes en rutas públicas
+
+### 🎯 Beneficios
+
+**Antes (Email):**
+- ❌ Configuración compleja de SMTP
+- ❌ Timeouts en Vercel
+- ❌ Posibles problemas de deliverability
+- ❌ Cliente no puede ver link interactivo fácilmente
+
+**Después (WhatsApp):**
+- ✅ No requiere configuración de servidor
+- ✅ Comunicación directa con el cliente
+- ✅ Link clickeable en app de mensajería
+- ✅ Cliente puede guardar conversación
+- ✅ Mayor tasa de apertura/lectura
+
+**Causa**: El sistema de emails presentaba problemas de timeout en Vercel, configuración compleja y poca visibilidad para los clientes. WhatsApp es más directo, familiar y confiable.
+
+**Solución**: Sistema de notificación por WhatsApp con link a página pública de reserva.
+
+---
+
 ## [1.3.0] - 2026-01-15 ⚠️
 
 ### ✨ Added - Modal de Confirmación y Mejoras

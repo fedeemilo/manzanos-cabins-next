@@ -41,9 +41,9 @@
 
 -   **API**: Next.js API Routes
 -   **Base de Datos**: MongoDB con Mongoose
--   **Emails**: Nodemailer
+-   **Notificaciones**: WhatsApp (API de WhatsApp Web)
 
-### Integraciones Futuras
+### Integraciones
 
 -   **n8n**: Automatización y actualización de Excel
 
@@ -103,7 +103,8 @@ components/
 
 lib/
   ├── mongodb.ts        # Conexión DB
-  ├── email.ts          # Utilidades de email
+  ├── auth.ts           # Utilidades de autenticación
+  ├── dolar.ts          # Cotización dólar
   ├── schemas.ts        # Schemas de validación
   └── utils.ts          # Utilidades generales
 
@@ -150,26 +151,33 @@ Schema.pre('save', function (this: IReserva) {
 
 ---
 
-## 📧 Sistema de Emails
+## 📱 Sistema de Notificaciones WhatsApp
 
 ### Configuración
 
--   Variables requeridas en `.env.local`:
-    ```
-    EMAIL_HOST=smtp.gmail.com
-    EMAIL_PORT=587
-    EMAIL_USER=email@gmail.com
-    EMAIL_PASSWORD=password-de-app
-    EMAIL_FROM=email@gmail.com
-    EMAIL_TO=destino@gmail.com
-    ```
+-   Campo `telefono` opcional en formulario de reserva
+-   Validación: Solo números permitidos
+-   Formato internacional recomendado: `5491123456789` (país + área + número)
 
-### Emails HTML
+### Funcionalidad
 
--   Usar **inline CSS** para compatibilidad
--   Templates **responsive** (mobile-first)
--   Colores consistentes con branding: `#8B6F47`, `#A0826D`
--   Incluir **toda la información** relevante de la reserva
+-   **Botón en SuccessBanner**: Envía mensaje preformateado con link a reserva
+-   **Botón en UltimasReservas**: Ícono WhatsApp para reenviar confirmación
+-   **Mensaje personalizado**: Saludo por nombre + link público a reserva
+-   **Página pública**: `/reserva/[id]` - No requiere autenticación
+
+### Ejemplo de Mensaje
+
+```
+Hola Juan! 👋
+
+Te confirmamos que registramos tu reserva en el sistema de *Cabañas Los Manzanos*. 🏡
+
+Podés verificar todos los detalles de tu estadía en el siguiente link:
+https://tudominio.com/reserva/507f1f77bcf86cd799439011
+
+¡Te esperamos en San Martín de los Andes! 🏔️
+```
 
 ---
 
@@ -193,6 +201,23 @@ Schema.pre('save', function (this: IReserva) {
 -   Usar componentes de `components/ui/`
 -   Customizar colores con variables CSS en `globals.css`
 -   Mantener consistencia visual en toda la app
+
+### Interactividad
+
+-   **TODOS los botones, links y elementos clickeables DEBEN tener `cursor-pointer`**
+-   Usar estados hover para feedback visual
+-   Transiciones suaves con `transition-colors` o `transition-all`
+
+```tsx
+// ✅ CORRECTO
+<button className="bg-stone-600 hover:bg-stone-700 cursor-pointer">Click</button>
+<Link href="/gestion" className="text-blue-600 hover:text-blue-800 cursor-pointer">
+    Link
+</Link>
+
+// ❌ INCORRECTO - Falta cursor-pointer
+<button className="bg-stone-600 hover:bg-stone-700">Click</button>
+```
 
 ---
 
@@ -250,26 +275,28 @@ npm run start
 
 ### Variables de Entorno en Producción
 
--   Configurar todas las variables de `.env.example`
--   Usar **MongoDB Atlas** para base de datos
--   Configurar **SMTP** para emails (Gmail o servicio dedicado)
+-   Configurar todas las variables necesarias:
+    -   `MONGODB_URI`: Base de datos (MongoDB Atlas recomendado)
+    -   `AUTH_USERNAME` y `AUTH_PASSWORD`: Credenciales de login
+    -   `N8N_WEBHOOK_URL`: Webhook de n8n (opcional)
 
 ---
 
-## 🔄 Integración n8n (Próximamente)
+## 🔄 Integración n8n
 
 ### Objetivo
 
 -   Escuchar creación de nuevas reservas
--   Actualizar Excel automáticamente
+-   Actualizar Excel automáticamente en Google Sheets
 -   Realizar conversión ARS → USD
--   Enviar notificaciones adicionales
+-   Organizar por año en sheets dinámicos
 
-### Preparación
+### Configuración
 
--   API está lista para webhooks
--   Endpoint: `POST /api/reservas`
+-   Webhook URL configurada en `.env.local`
+-   Endpoint: `POST /api/reservas` envía datos a n8n
 -   Respuesta incluye todos los datos necesarios
+-   Timezone: `America/Buenos_Aires`
 
 ---
 
@@ -313,9 +340,10 @@ npm run start
 ### Funcionalidad Core
 
 1. **Crear reservas** con formulario simple
-2. **Cálculos automáticos** (saldo, días)
-3. **Email de confirmación** automático
-4. **Integración futura** con Excel vía n8n
+2. **Cálculos automáticos** (saldo, días, descuentos)
+3. **Notificación por WhatsApp** con link a página pública
+4. **Gestión de estado de pago** (pendiente/pagado)
+5. **Integración con n8n** para actualizar Excel automáticamente
 
 ### Prioridades
 
@@ -331,8 +359,9 @@ npm run start
 ### Logs
 
 -   Revisar logs de producción regularmente
--   Monitorear errores de email
+-   Monitorear errores en API routes
 -   Verificar conexión a MongoDB
+-   Verificar integración con n8n
 
 ### Backups
 

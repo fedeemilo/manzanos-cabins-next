@@ -1,8 +1,10 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { isAuthenticated, logout } from '@/lib/auth'
 import LoginForm from './LoginForm'
+import Navbar from '@/components/shared/Navbar'
 import { Button } from '@/components/ui/button'
 import { LogOut, Download } from 'lucide-react'
 import toast from 'react-hot-toast'
@@ -24,11 +26,22 @@ interface AuthGuardProps {
 }
 
 export default function AuthGuard({ children }: AuthGuardProps) {
-    const [isAuth, setIsAuth] = useState(false)
-    const [isLoading, setIsLoading] = useState(true)
+    const pathname = usePathname()
     const { isInstallable, handleInstallClick } = useInstallPrompt()
 
+    // Rutas públicas que no requieren autenticación
+    const publicRoutes = ['/reserva/']
+    const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route))
+
+    const [isAuth, setIsAuth] = useState(isPublicRoute)
+    const [isLoading, setIsLoading] = useState(!isPublicRoute)
+
     useEffect(() => {
+        // Si es ruta pública, no necesitamos verificar autenticación
+        if (isPublicRoute) {
+            return
+        }
+
         // Verificar autenticación al montar el componente
         const checkAuth = () => {
             const authStatus = isAuthenticated()
@@ -38,7 +51,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
 
         // Ejecutar en el siguiente tick para evitar warning
         setTimeout(checkAuth, 0)
-    }, [])
+    }, [isPublicRoute])
 
     const handleLoginSuccess = () => {
         setIsAuth(true)
@@ -66,31 +79,37 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         )
     }
 
-    // Mostrar login si no está autenticado
-    if (!isAuth) {
+    // Mostrar login si no está autenticado (y no es ruta pública)
+    if (!isAuth && !isPublicRoute) {
         return <LoginForm onLoginSuccess={handleLoginSuccess} />
     }
 
     // Mostrar contenido protegido con botones flotantes
+    // No mostrar botones ni navbar en rutas públicas
     return (
         <>
+            {/* Navbar - solo en rutas privadas */}
+            {!isPublicRoute && <Navbar />}
+            
             {children}
-            {/* Botones flotantes */}
-            <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
-                {/* Botón de instalación PWA (solo si es instalable) */}
-                {isInstallable && (
-                    <Button
-                        onClick={handleInstall}
-                        className="bg-amber-600 hover:bg-amber-700 text-white shadow-lg cursor-pointer"
-                        size="lg"
-                    >
-                        <Download className="h-5 w-5 mr-2" />
-                        Instalar App
-                    </Button>
-                )}
+            
+            {/* Botones flotantes - solo en rutas privadas */}
+            {!isPublicRoute && (
+                <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
+                    {/* Botón de instalación PWA (solo si es instalable) */}
+                    {isInstallable && (
+                        <Button
+                            onClick={handleInstall}
+                            className="bg-amber-600 hover:bg-amber-700 text-white shadow-lg cursor-pointer"
+                            size="lg"
+                        >
+                            <Download className="h-5 w-5 mr-2" />
+                            Instalar App
+                        </Button>
+                    )}
 
-                {/* Botón de logout con confirmación */}
-                <AlertDialog>
+                    {/* Botón de logout con confirmación */}
+                    <AlertDialog>
                     <AlertDialogTrigger asChild>
                         <Button
                             className="bg-stone-700 hover:bg-stone-800 text-white shadow-lg cursor-pointer"
@@ -124,6 +143,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
                     </AlertDialogContent>
                 </AlertDialog>
             </div>
+            )}
         </>
     )
 }

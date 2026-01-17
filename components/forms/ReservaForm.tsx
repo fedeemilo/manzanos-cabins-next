@@ -21,7 +21,9 @@ import { reservaSchema, ReservaFormData } from '@/lib/schemas'
 import SuccessBanner from '@/components/shared/SuccessBanner'
 
 interface ReservaCreada {
+    _id: string
     nombreCompleto: string
+    telefono?: string
     numeroCabana: string
     fechaInicio: Date
     fechaFin: Date
@@ -208,7 +210,9 @@ export default function ReservaForm() {
 
             // Guardar reserva creada para mostrar banner
             setReservaCreada({
+                _id: result.data._id,
                 nombreCompleto: data.nombreCompleto,
+                telefono: data.telefono,
                 numeroCabana: data.numeroCabana,
                 fechaInicio: data.fechaInicio,
                 fechaFin: data.fechaFin,
@@ -309,6 +313,28 @@ export default function ReservaForm() {
                                     <p className="text-sm text-red-600">
                                         {errors.nombreCompleto.message}
                                     </p>
+                                )}
+                            </div>
+
+                            {/* Teléfono */}
+                            <div className="space-y-2">
+                                <Label htmlFor="telefono" className="text-stone-700 font-medium">
+                                    Teléfono / WhatsApp (opcional)
+                                </Label>
+                                <Input
+                                    id="telefono"
+                                    type="tel"
+                                    placeholder="1123456789"
+                                    className="border-stone-300 focus:border-stone-500"
+                                    {...register('telefono')}
+                                    onChange={e => {
+                                        // Solo permitir números
+                                        const value = e.target.value.replace(/[^0-9]/g, '')
+                                        setValue('telefono', value)
+                                    }}
+                                />
+                                {errors.telefono && (
+                                    <p className="text-sm text-red-600">{errors.telefono.message}</p>
                                 )}
                             </div>
 

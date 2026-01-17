@@ -1,13 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { FileText, Home, Check, Clock } from 'lucide-react'
+import { FileText, Home, Check, Clock, MessageCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 
 interface Reserva {
     _id: string
     nombreCompleto: string
+    telefono?: string
     numeroCabana: '1' | '2'
     origenReserva: string
     fechaInicio: string
@@ -213,27 +214,49 @@ export default function UltimasReservas() {
                                             </p>
                                         </div>
 
-                                        {!esPagado && reserva.saldoPendiente > 0 && (
-                                            <Button
-                                                onClick={() => marcarComoPagado(reserva._id)}
-                                                disabled={actualizando === reserva._id}
-                                                size="sm"
-                                                variant="outline"
-                                                className="border-stone-300 text-stone-700 hover:bg-stone-50 hover:border-stone-400 cursor-pointer transition-colors"
-                                            >
-                                                {actualizando === reserva._id ? (
-                                                    <span className="flex items-center gap-2 text-stone-600">
-                                                        <div className="animate-spin h-4 w-4 border-2 border-stone-400 border-t-transparent rounded-full" />
-                                                        Actualizando...
-                                                    </span>
-                                                ) : (
-                                                    <span className="flex items-center gap-2">
-                                                        <Check className="h-4 w-4" />
-                                                        Marcar Pagado
-                                                    </span>
-                                                )}
-                                            </Button>
-                                        )}
+                                        <div className="flex gap-2">
+                                            {/* Botón WhatsApp */}
+                                            {reserva.telefono && (
+                                                <Button
+                                                    onClick={() => {
+                                                        const nombre = reserva.nombreCompleto.split(' ')[0]
+                                                        const linkReserva = `${window.location.origin}/reserva/${reserva._id}`
+                                                        const mensaje = `Hola ${nombre}!\n\nTe compartimos el detalle de tu reserva en Cabañas Los Manzanos:\n${linkReserva}\n\nTe esperamos en San Martín de los Andes!`
+                                                        const whatsappUrl = `https://wa.me/${reserva.telefono}?text=${encodeURIComponent(mensaje)}`
+                                                        window.open(whatsappUrl, '_blank')
+                                                    }}
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="border-green-300 text-green-700 hover:bg-green-50 hover:border-green-400 cursor-pointer transition-colors"
+                                                    title="Enviar confirmación por WhatsApp"
+                                                >
+                                                    <MessageCircle className="h-4 w-4" />
+                                                </Button>
+                                            )}
+
+                                            {/* Botón Marcar Pagado */}
+                                            {!esPagado && reserva.saldoPendiente > 0 && (
+                                                <Button
+                                                    onClick={() => marcarComoPagado(reserva._id)}
+                                                    disabled={actualizando === reserva._id}
+                                                    size="sm"
+                                                    variant="outline"
+                                                    className="border-stone-300 text-stone-700 hover:bg-stone-50 hover:border-stone-400 cursor-pointer transition-colors"
+                                                >
+                                                    {actualizando === reserva._id ? (
+                                                        <span className="flex items-center gap-2 text-stone-600">
+                                                            <div className="animate-spin h-4 w-4 border-2 border-stone-400 border-t-transparent rounded-full" />
+                                                            Actualizando...
+                                                        </span>
+                                                    ) : (
+                                                        <span className="flex items-center gap-2">
+                                                            <Check className="h-4 w-4" />
+                                                            Marcar Pagado
+                                                        </span>
+                                                    )}
+                                                </Button>
+                                            )}
+                                        </div>
                                     </div>
 
                                     <div className="grid grid-cols-2 gap-3 text-sm">

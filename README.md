@@ -10,18 +10,24 @@ Sistema de gestión de reservas desarrollado con Next.js para las Cabañas Los M
 -   **shadcn/ui** - Componentes de UI
 -   **MongoDB** con Mongoose
 -   **React Hook Form** + Zod - Validación de formularios
--   **Nodemailer** - Envío de emails
 -   **date-fns** - Manejo de fechas
+-   **react-hot-toast** - Notificaciones
+-   **lucide-react** - Iconos
 
 ## 📋 Características
 
 -   ✅ Formulario elegante de creación de reservas
 -   ✅ Validación de datos en tiempo real
--   ✅ Cálculo automático de saldo pendiente
--   ✅ Cálculo automático de cantidad de días
--   ✅ Envío automático de email de confirmación
+-   ✅ Cálculo automático de saldo pendiente y días
+-   ✅ Sistema de autenticación con login
+-   ✅ Notificación por WhatsApp con link a reserva
+-   ✅ Página pública para visualizar reserva (sin login)
+-   ✅ Gestión de estado de pago
+-   ✅ Filtros por fecha (Hoy, Esta Semana, Todas)
+-   ✅ Ocupación de cabañas con selector de fecha
+-   ✅ PWA instalable
 -   ✅ Diseño responsive y moderno
--   🔄 Próximamente: Integración con n8n para actualización de Excel
+-   ✅ Integración con n8n para actualización automática de Excel
 
 ## 🛠️ Instalación y Configuración
 
@@ -46,21 +52,13 @@ Creá un archivo `.env.local` en la raíz del proyecto con el siguiente contenid
 # MongoDB Connection
 MONGODB_URI=mongodb://localhost:27017/manzanos-cabins
 
-# Email Configuration (ejemplo con Gmail)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=587
-EMAIL_USER=tu-email@gmail.com
-EMAIL_PASSWORD=tu-password-de-app-de-gmail
-EMAIL_FROM=tu-email@gmail.com
-EMAIL_TO=email-destino@gmail.com
+# Authentication
+AUTH_USERNAME=tu-usuario
+AUTH_PASSWORD=tu-contraseña-segura
+
+# n8n Webhook (opcional)
+N8N_WEBHOOK_URL=https://tu-instancia-n8n.app/webhook/reserva-creada
 ```
-
-#### Configuración de Gmail para envío de emails:
-
-1. Ir a tu cuenta de Google
-2. Habilitar la verificación en 2 pasos
-3. Generar una "Contraseña de aplicación"
-4. Usar esa contraseña en `EMAIL_PASSWORD`
 
 ### 4. Asegurate de tener MongoDB corriendo
 
