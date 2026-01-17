@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Calendar, Home } from 'lucide-react'
+import { Calendar, Home, ChevronLeft, ChevronRight } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -26,6 +26,41 @@ export default function OcupacionCabanas() {
     const [loading, setLoading] = useState(true)
     const [isTransitioning, setIsTransitioning] = useState(false)
     const [error, setError] = useState<string | null>(null)
+    const [todasLasReservas, setTodasLasReservas] = useState<Reserva[]>([])
+
+    // Cargar todas las reservas para encontrar la próxima
+    const fetchTodasLasReservas = useCallback(async () => {
+        try {
+            const response = await fetch('/api/reservas')
+            const data = await response.json()
+            if (data.success) {
+                setTodasLasReservas(data.data)
+                
+                // Encontrar la próxima reserva más cercana
+                const hoy = new Date()
+                hoy.setHours(0, 0, 0, 0)
+                
+                const reservasFuturas = data.data.filter((r: Reserva) => {
+                    const fechaInicio = new Date(r.fechaInicio)
+                    fechaInicio.setHours(0, 0, 0, 0)
+                    return fechaInicio >= hoy
+                })
+                
+                if (reservasFuturas.length > 0) {
+                    // Ordenar por fecha de inicio y tomar la primera
+                    reservasFuturas.sort((a: Reserva, b: Reserva) => 
+                        new Date(a.fechaInicio).getTime() - new Date(b.fechaInicio).getTime()
+                    )
+                    const proximaReserva = reservasFuturas[0]
+                    const proximaFecha = new Date(proximaReserva.fechaInicio)
+                    proximaFecha.setHours(0, 0, 0, 0)
+                    setFecha(proximaFecha)
+                }
+            }
+        } catch (err) {
+            console.error('Error al cargar todas las reservas:', err)
+        }
+    }, [])
 
     const fetchReservas = useCallback(async () => {
         try {
@@ -55,11 +90,25 @@ export default function OcupacionCabanas() {
     }, [fecha, loading])
 
     useEffect(() => {
+        fetchTodasLasReservas()
+    }, [fetchTodasLasReservas])
+
+    useEffect(() => {
         fetchReservas()
     }, [fetchReservas])
 
     const irHoy = () => {
         setFecha(new Date())
+    }
+
+    const cambiarDia = (direccion: 'prev' | 'next') => {
+        const nuevaFecha = new Date(fecha)
+        if (direccion === 'prev') {
+            nuevaFecha.setDate(nuevaFecha.getDate() - 1)
+        } else {
+            nuevaFecha.setDate(nuevaFecha.getDate() + 1)
+        }
+        setFecha(nuevaFecha)
     }
 
     const cambiarFecha = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -86,6 +135,15 @@ export default function OcupacionCabanas() {
     })
 
     const esHoy = fecha.toDateString() === new Date().toDateString()
+    
+    // Verificar si es el día de hoy o pasado (para deshabilitar flecha izquierda)
+    const esPasado = () => {
+        const hoy = new Date()
+        hoy.setHours(0, 0, 0, 0)
+        const fechaComparar = new Date(fecha)
+        fechaComparar.setHours(0, 0, 0, 0)
+        return fechaComparar <= hoy
+    }
 
     // Obtener fecha en formato YYYY-MM-DD para el input
     const fechaInputValue = new Date(fecha.getTime() - fecha.getTimezoneOffset() * 60000)
@@ -104,6 +162,18 @@ export default function OcupacionCabanas() {
                         Ocupación de Cabañas
                     </CardTitle>
                     <div className="flex items-center gap-2">
+                        {/* Flechitas para cambiar día */}
+                        <Button
+                            onClick={() => cambiarDia('prev')}
+                            variant="outline"
+                            size="icon"
+                            disabled={esPasado()}
+                            className="border-stone-300 hover:bg-stone-100 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                            title="Día anterior"
+                        >
+                            <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        
                         <Input
                             type="date"
                             value={fechaInputValue}
@@ -111,6 +181,17 @@ export default function OcupacionCabanas() {
                             min={minFecha}
                             className="w-auto border-stone-300 focus:border-amber-500 cursor-pointer"
                         />
+                        
+                        <Button
+                            onClick={() => cambiarDia('next')}
+                            variant="outline"
+                            size="icon"
+                            className="border-stone-300 hover:bg-stone-100 cursor-pointer"
+                            title="Día siguiente"
+                        >
+                            <ChevronRight className="h-4 w-4" />
+                        </Button>
+                        
                         {!esHoy && (
                             <Button
                                 onClick={irHoy}
@@ -235,21 +316,6 @@ export default function OcupacionCabanas() {
                                                 </div>
                                             </div>
 
-                                            {reserva.saldoPendiente > 0 && (
-                                                <div className="mt-3 pt-3 border-t border-stone-200">
-                                                    <div className="flex justify-between items-center text-sm">
-                                                        <span className="text-stone-600">
-                                                            Saldo pendiente:
-                                                        </span>
-                                                        <span className="font-bold text-red-600">
-                                                            $
-                                                            {reserva.saldoPendiente.toLocaleString(
-                                                                'es-AR'
-                                                            )}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            )}
                                         </div>
                                     )
                                 })}

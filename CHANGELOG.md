@@ -9,7 +9,7 @@ y este proyecto adhiere a [Semantic Versioning](https://semver.org/lang/es/).
 
 ## [1.5.0] - 2026-01-17 🎨
 
-### ✨ Added - Nuevos Íconos y Mejoras Open Graph
+### ✨ Added - Nuevos Íconos, Open Graph y Navegación de Ocupación
 
 #### Íconos Actualizados
 
@@ -36,6 +36,24 @@ const baseUrl = process.env.NEXT_PUBLIC_URL || 'https://cabanas-manzanos.vercel.
 url: `${baseUrl}/cabin-preview.png`  // ✅ URL absoluta
 ```
 
+#### Navegación de Ocupación Mejorada
+
+-   **Flechas de navegación**: Agregadas flechitas ◀ ▶ para cambiar días
+-   **Flecha izquierda deshabilitada**: No permite ir al pasado (opacidad reducida, cursor bloqueado)
+-   **Carga inteligente**: Al abrir, muestra automáticamente el día de la próxima reserva más cercana
+-   **Mejor UX**: Usuario ve inmediatamente la próxima ocupación sin buscar manualmente
+
+**Antes:**
+```
+Usuario entraba → Veía "hoy" → Tenía que navegar manualmente al calendario
+```
+
+**Después:**
+```
+Usuario entra → Ve automáticamente la fecha de la próxima reserva (ej: 18/01/2026)
+Puede navegar con ◀ ▶ entre días
+```
+
 ### 🗑️ Removed - Acortador de URLs
 
 -   **Removida función `acortarURL()`**: Links ahora se envían completos
@@ -52,6 +70,8 @@ https://is.gd/abc123
 https://cabanas-manzanos.vercel.app/reserva/696bb8123066dcb8d4e3bf86
 ```
 
+-   **`OcupacionCabanas`**: Removida sección de "Saldo pendiente" por simplicidad visual
+
 ### 🔧 Changed
 
 -   **`app/reserva/[id]/layout.tsx`**: 
@@ -60,6 +80,11 @@ https://cabanas-manzanos.vercel.app/reserva/696bb8123066dcb8d4e3bf86
 -   **`lib/utils.ts`**: Removida función `acortarURL()`
 -   **`components/shared/SuccessBanner.tsx`**: Links sin acortar
 -   **`components/shared/UltimasReservas.tsx`**: Links sin acortar
+-   **`components/shared/OcupacionCabanas.tsx`**:
+    -   Agregadas flechas de navegación día a día
+    -   Fetch inicial de todas las reservas para encontrar la próxima
+    -   Seteo automático de fecha a próxima reserva
+    -   Validación para deshabilitar navegación al pasado
 -   **`public/manifest.json`**: Agregado `apple-touch-icon.png`
 -   **`app/layout.tsx`**: Vinculado `apple-touch-icon.png` en metadata
 
