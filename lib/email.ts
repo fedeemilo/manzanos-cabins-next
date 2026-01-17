@@ -1,11 +1,12 @@
 import nodemailer from 'nodemailer'
+import type SMTPTransport from 'nodemailer/lib/smtp-transport'
 import { IReserva } from '@/models/Reserva'
 
 export async function enviarEmailReserva(reserva: IReserva) {
     // Usar puerto 465 con SSL para evitar bloqueos en Vercel
     const useSSL = process.env.EMAIL_PORT === '465'
     
-    const transporter = nodemailer.createTransport({
+    const transportConfig: SMTPTransport.Options = {
         host: process.env.EMAIL_HOST,
         port: Number(process.env.EMAIL_PORT),
         secure: useSSL, // true para puerto 465, false para 587
@@ -13,14 +14,12 @@ export async function enviarEmailReserva(reserva: IReserva) {
             user: process.env.EMAIL_USER,
             pass: process.env.EMAIL_PASSWORD
         },
-        connectionTimeout: 10000, // 10 segundos
-        greetingTimeout: 10000, // 10 segundos
-        socketTimeout: 10000, // 10 segundos
-        pool: false, // No usar pool en serverless
         tls: {
             rejectUnauthorized: false // Permitir certificados auto-firmados
         }
-    })
+    }
+    
+    const transporter = nodemailer.createTransport(transportConfig)
 
     const fechaInicio = new Date(reserva.fechaInicio).toLocaleDateString('es-AR', {
         day: '2-digit',
